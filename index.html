@@ -53,24 +53,29 @@
         var currencies = {};
         $('#spinner').show();
         $(document).ready(function () {
+
             // URL z api NBP żeby wyciągnąć symbole i nazwy walut
             var url_symbols = 'http://api.nbp.pl/api/exchangerates/tables/C';
-
+            // Zapytanie do najprostszego api NBP z tabeli C (kupno/sprzedaż)
             $.ajax({
                 url: url_symbols,
                 dataType: 'json',
                 async: false,
                 success: function (result) {
-
+                    // Skrócenie zmiennej
                     let rates = result[0]['rates'];
                     // Populacja słownika
                     rates.forEach(element => {
+                        // Nazwa waluty
                         let name = element['currency'];
+                        // Symbol(kod) waluty
                         let symbol = element['code'];
+                        // Populacja słownika po kluczu kodu waluty
                         currencies[symbol] = {
                             'name': name,
                             'months': {}
                         };
+                        // Populacja miesięcy pustymi wartościami dla danej waluty
                         for (let x = 1; x <= 12; x++) {
                             currencies[symbol]['months'][x] = { 'bid': 0, 'ask': 0 }
                         };
@@ -81,9 +86,6 @@
                         get_nbp_data_month(x, currencies);
                     }
                     $('#spinner').hide();
-
-
-
                 }
             });
         });

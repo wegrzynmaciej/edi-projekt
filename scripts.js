@@ -24,6 +24,8 @@ function get_nbp_data_month(m, currencies) {
     // Stworzenie URL do zapytania do api NBP dla konkretnego miesiąca
     var url_api = 'http://api.nbp.pl/api/exchangerates/tables/C/2019-' + m_formatted + '-01/2019-' + month_day_string[m];
 
+    // Zapytanie AJAX do api NBP (powyższy URL)
+    // Async bo inaczej problem z przerzucaniem danych
     $.ajax({
         url: url_api,
         dataType: 'json',
@@ -55,17 +57,6 @@ function get_nbp_data_month(m, currencies) {
     });
 };
 
-/*
- var currency_data = {
-                        type: "bar",
-                        columns: [
-                            ["data1", 30, 200, 100, 170, 150, 250],
-                            ["data2", 130, 100, 140, 35, 110, 50],
-                            ["data3", 130, 100, 140, 35, 110, 50]
-                        ]
-                    }
-
-*/
 function generate_chart_NBP(currency_data) {
     var months = currency_data['months']
     var cols_bid = new Array();
