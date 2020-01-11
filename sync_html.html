@@ -6,52 +6,25 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="scripts.js"></script>
-    <!-- ŁADOWANIE BIBLIOTEKI WYKRESÓW https://naver.github.io/billboard.js/ START -->
+    <!-- Step 1) Load D3.js -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="billboard.min.js"></script>
-    <link rel="stylesheet" href="billboard.min.css">
-    <link rel="stylesheet" href="insight.min.css">
-    <!-- ŁADOWANIE BIBLIOTEKI WYKRESÓW https://naver.github.io/billboard.js/ STOP -->
 
-    <!-- ŁADOWANIE BOOTSTRAP START -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
-    <!-- ŁADOWANIE BOOTSTRAP STOP -->
+    <!-- Step 2) Load billboard.js with style -->
+    <script src="billboard.min.js"></script>
+
+    <!-- Load with base style -->
+    <link rel="stylesheet" href="billboard.min.css">
+
+    <!-- Or load different theme style -->
+    <link rel="stylesheet" href="insight.min.css">
 </head>
 
 <body>
-
-
-    <br><br><br><br>
-    <button id='AUD' onclick="generate_chart_NBP(currencies[this.id])">AUD</button>
-    <button>CAD</button>
-    <button>CHF</button>
-    <button>CZK</button>
-    <button>DKK</button>
-    <button>EUR</button>
-    <button>GBP</button>
-    <button>HUF</button>
-    <button>JPY</button>
-    <button>NOK</button>
-    <button>SEK</button>
-    <button>USD</button>
-    <button>XDR</button>
-    <br><br><br><br>
-    <div class="text-center">
-        <div id="spinner" class="spinner-border" style="width: 3rem;height: 3rem;" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div id="chart"></div>
-    </div>
-
+    <div id="chart"></div>
 
     <script>
         // Deklaracja słownika walut
         var currencies = {};
-        $('#spinner').show();
         $(document).ready(function () {
             // URL z api NBP żeby wyciągnąć symbole i nazwy walut
             var url_symbols = 'http://api.nbp.pl/api/exchangerates/tables/C';
@@ -80,12 +53,11 @@
                     for (let x = 1; x <= 12; x++) {
                         get_nbp_data_month(x, currencies);
                     }
-                    $('#spinner').hide();
-
 
 
                 }
             });
+
         });
     </script>
 
