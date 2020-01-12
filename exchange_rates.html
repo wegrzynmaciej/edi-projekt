@@ -29,7 +29,7 @@
 <body>
     <div class="jumbotron text-center" style="margin-bottom:0">
         <h1>Projekt Elektroniczna Wymiana Danych</h1>
-        <p>Dane statystyczne</p>
+        <p>Średni kurs walut obcych w 2019 roku</p>
     </div>
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
         <a class="navbar-brand" href="#">EDI</a>
@@ -51,8 +51,85 @@
         </div>
     </nav>
 
-</body>
+    <div class="col-sm-12 text-center mt-4">
+        <h2>Kurs walut w 2019 roku</h2>
+        <p>W tej sekcji udostępniamy miesięczne uśrednione wartości kupna i sprzedaży walut obcych w 2019 roku,
+            otrzymanych z <a href="https://api.nbp.pl">API Narodowego Banku Polskiego</a></p>
+    </div>
 
+
+    <div class="dropdown show text-center">
+        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Wybierz walutę
+        </a>
+
+        <div class="dropdown-menu" id="currencies-dropdown" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" id='AUD' href="#" onclick="generate_chart_NBP(this.id,currencies)"></a>
+        </div>
+    </div>
+    <div class="container col-sm-12 charts-container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3 id='chart-title'></h3>
+                <div class="spinner spinner-border" style="width: 3rem;height: 3rem;" role="status">
+                    <span class="sr-only">Ładowanie...</span>
+                </div>
+
+
+                <div id="chart"></div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Deklaracja słownika walut
+        var currencies = {};
+
+        $(document).ready(function () {
+            $('.spinner').show();
+            // URL z api NBP żeby wyciągnąć symbole i nazwy walut
+            var url_symbols = 'http://api.nbp.pl/api/exchangerates/tables/C';
+            // Zapytanie do najprostszego api NBP z tabeli C (kupno/sprzedaż)
+            $.ajax({
+                url: url_symbols,
+                dataType: 'json',
+                async: false,
+                success: function (result) {
+                    // Skrócenie zmiennej
+                    let rates = result[0]['rates'];
+                    // Populacja słownika
+                    rates.forEach(element => {
+                        // Nazwa waluty
+                        let name = element['currency'];
+                        // Symbol(kod) waluty
+                        let symbol = element['code'];
+                        // Populacja słownika po kluczu kodu waluty
+                        currencies[symbol] = {
+                            'name': name,
+                            'months': {}
+                        };
+                        // Populacja miesięcy pustymi wartościami dla danej waluty
+                        for (let x = 1; x <= 12; x++) {
+                            currencies[symbol]['months'][x] = { 'bid': 0, 'ask': 0 }
+                        };
+
+                    });
+                    // Generacja listy z walutami
+                    create_dropdown(currencies)
+                    // Wywołanie funkcji pobierającej średnią wartość kupna i sprzedaży walut z tabeli C dla każego miesiąca w 2019 roku
+                    get_nbp_data_month(currencies)
+                    generate_chart_NBP('AUD', currencies);
+
+                }
+            });
+        });
+    </script>
+
+</body>
 <footer class="page-footer">
     <div class="container-fluid text-center text-md-left">
         <div class="row">

@@ -1,4 +1,4 @@
-function get_nbp_data_month(m, currencies) {
+function get_nbp_data_month(currencies) {
     // Deklaracja słownika dla API NBP - zamiana miesiąca na odpowiednią strukturę
     let month_day_string = {
         1: '01-31',
@@ -14,51 +14,54 @@ function get_nbp_data_month(m, currencies) {
         11: '11-30',
         12: '12-31'
     };
+    for (let m = 1; m <= 12; m++) {
+        // Ewentualna zamiana podanego numeru miesiąca do formatu 2-miejscowego, np. 1 => 01
+        if (m < 10) {
+            var m_formatted = '0' + m;
+        } else {
+            var m_formatted = m;
+        };
+        // Stworzenie URL do zapytania do api NBP dla konkretnego miesiąca
+        var url_api = 'http://api.nbp.pl/api/exchangerates/tables/C/2019-' + m_formatted + '-01/2019-' + month_day_string[m];
 
-    // Ewentualna zamiana podanego numeru miesiąca do formatu 2-miejscowego, np. 1 => 01
-    if (m < 10) {
-        var m_formatted = '0' + m;
-    } else {
-        var m_formatted = m;
-    };
-    // Stworzenie URL do zapytania do api NBP dla konkretnego miesiąca
-    var url_api = 'http://api.nbp.pl/api/exchangerates/tables/C/2019-' + m_formatted + '-01/2019-' + month_day_string[m];
-
-    // Zapytanie AJAX do api NBP (powyższy URL)
-    // Async bo inaczej problem z przerzucaniem danych
-    $.ajax({
-        url: url_api,
-        dataType: 'json',
-        async: false,
-        success: function (data) {
-            // NBP nie zawsze publikowało każdy dzień, dlatego przypisanie ilości dni opublikowanych do stałej blokowej
-            const NBP_length_of_month = data.length;
-            // Pętla przechodząca przez każdy opublikowany dzień miesiąca
-            data.forEach(day_of_month => {
-                const day = day_of_month['rates'];
-                // Pętla po konkretnych walutach
-                day.forEach(currency => {
-                    const symbol = currency['code'];
-                    const ask = currency['ask'];
-                    const bid = currency['bid'];
-                    // Dodanie wartości kupna (bid) i sprzedaży (ask) do słownika currencies dla danej waluty i danego miesiąca
-                    currencies[symbol]['months'][m]['bid'] += bid;
-                    currencies[symbol]['months'][m]['ask'] += ask;
+        // Zapytanie AJAX do api NBP (powyższy URL)
+        // Async bo inaczej problem z przerzucaniem danych
+        $.ajax({
+            url: url_api,
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                // NBP nie zawsze publikowało każdy dzień, dlatego przypisanie ilości dni opublikowanych do stałej blokowej
+                const NBP_length_of_month = data.length;
+                // Pętla przechodząca przez każdy opublikowany dzień miesiąca
+                data.forEach(day_of_month => {
+                    const day = day_of_month['rates'];
+                    // Pętla po konkretnych walutach
+                    day.forEach(currency => {
+                        const symbol = currency['code'];
+                        const ask = currency['ask'];
+                        const bid = currency['bid'];
+                        // Dodanie wartości kupna (bid) i sprzedaży (ask) do słownika currencies dla danej waluty i danego miesiąca
+                        currencies[symbol]['months'][m]['bid'] += bid;
+                        currencies[symbol]['months'][m]['ask'] += ask;
+                    });
                 });
-            });
-            // Wyliczenie średniej z miesiąca dla każdej waluty z zaokrągleniem do 4 miejsc
-            for (let symbol in currencies) {
-                let currency = currencies[symbol]['months'][m]
-                currency['ask'] = (currency['ask'] / NBP_length_of_month).toFixed(4);
-                currency['bid'] = (currency['bid'] / NBP_length_of_month).toFixed(4);
-            };
+                // Wyliczenie średniej z miesiąca dla każdej waluty z zaokrągleniem do 4 miejsc
+                for (let symbol in currencies) {
+                    let currency = currencies[symbol]['months'][m]
+                    currency['ask'] = (currency['ask'] / NBP_length_of_month).toFixed(4);
+                    currency['bid'] = (currency['bid'] / NBP_length_of_month).toFixed(4);
+                };
 
-        }
-    });
+            }
+        });
+    };
 };
 
-function generate_chart_NBP(currency_data) {
-    let months = currency_data['months']
+function generate_chart_NBP(id, dict) {
+    let title_dom = $('#chart-title');
+    title_dom.text(dict[id]['name'][0].toUpperCase() + dict[id]['name'].slice(1))
+    let months = dict[id]['months']
     let cols_bid = new Array();
     cols_bid.push('Kupno');
     let cols_ask = new Array();
@@ -91,6 +94,17 @@ function generate_chart_NBP(currency_data) {
             }
         }
     });
+    $('.spinner').hide();
+}
+
+function create_dropdown(dict) {
+    let dom_dropdown = $('#currencies-dropdown')
+    for (let key in dict) {
+        let name = dict[key]['name'];
+        let dropdown_element = '<a class="dropdown-item" id=' + key + ' href="#" onclick="generate_chart_NBP(this.id,currencies)">' + name[0].toUpperCase() + name.slice(1) + '</a>';
+        dom_dropdown.append(dropdown_element)
+    };
+
 }
 
 function generate_users(dict) {
@@ -159,7 +173,7 @@ function generate_users(dict) {
                         break;
                 }
             });
-            $('#spinner2').hide();
+            $('.spinner2').hide();
 
         }
     });
@@ -173,35 +187,116 @@ function generate_charts_users(users_dict) {
         data: {
             type: "pie",
             columns: [
-                ['Mężczyzna', users_dict['genders']['m']],
-                ['Kobieta', users_dict['genders']['f']]
+                ['Mężczyźni', users_dict['genders']['m']],
+                ['Kobiety', users_dict['genders']['f']]
             ]
         }
     });
 
     let columns_data = new Array();
     let nat_keys = users_dict['nationalities'];
+    let nat_names = new Array();
+    let x_names = new Array();
+    nat_names.push('x');
+    let nat_values = new Array();
+    nat_values.push('Liczba użytkowników')
+    let full_name = ''
     for (var key in nat_keys) {
-        let nat_values = new Array();
-        nat_values.push(key);
+
         nat_values.push(nat_keys[key])
-        columns_data.push(nat_values)
+        switch (key) {
+            case 'AU':
+                full_name = 'Australia';
+                break;
+            case 'BR':
+                full_name = 'Brazylia';
+                break;
+            case 'CA':
+                full_name = 'Kanada';
+                break;
+            case 'CH':
+                full_name = 'Szwajcaria';
+                break;
+            case 'DE':
+                full_name = 'Niemcy';
+                break;
+            case 'DK':
+                full_name = 'Dania';
+                break;
+            case 'ES':
+                full_name = 'Hiszpania';
+                break;
+            case 'FI':
+                full_name = 'Finlandia';
+                break;
+            case 'FR':
+                full_name = 'Francja';
+                break;
+            case 'GB':
+                full_name = 'Wielka Brytania';
+                break;
+            case 'IE':
+                full_name = 'Irlandia';
+                break;
+            case 'IR':
+                full_name = 'Iran';
+                break;
+            case 'NO':
+                full_name = 'Norwegia';
+                break;
+            case 'NL':
+                full_name = 'Holandia';
+                break;
+            case 'NZ':
+                full_name = 'Nowa Zelandia';
+                break;
+            case 'TR':
+                full_name = 'Turcja';
+                break;
+            case 'US':
+                full_name = 'Stany Zjednoczone';
+                break;
+            default:
+                break;
+        }
+        nat_names.push(full_name);
+        x_names.push(full_name);
     };
 
+    columns_data.push(nat_names)
+    columns_data.push(nat_values)
     bb.generate({
-        bindto: "#chart_nat",
+        bindto: "#chart_nats",
         data: {
-            type: "pie",
-            columns: columns_data
-        }
-    });
+            x: 'x',
+            type: "bar",
+            columns: columns_data,
 
+        },
+        legend: {
+            show: false
+        },
+        axis: {
+            x: {
+                type: 'category',
+                tick: {
+                    culling: false,
+                    rotate: 75,
+                    multiline: false,
+                    tooltip: true
+                }
+            }
+        },
+
+    });
     let columns_data_ages = new Array();
     let age_keys = users_dict['ages'];
     for (var key in age_keys) {
         let age_values = new Array();
-        age_values.push(key);
-        age_values.push(age_keys[key])
+        if (age_keys[key] != 0) {
+            age_values.push(key);
+            age_values.push(age_keys[key])
+        }
         columns_data_ages.push(age_values)
     };
     bb.generate({

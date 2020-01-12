@@ -29,7 +29,7 @@
 <body>
     <div class="jumbotron text-center" style="margin-bottom:0">
         <h1>Projekt Elektroniczna Wymiana Danych</h1>
-        <p>Dane statystyczne</p>
+        <p>Statystyka użytkowników portalu</p>
     </div>
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
         <a class="navbar-brand" href="#">EDI</a>
@@ -51,8 +51,91 @@
         </div>
     </nav>
 
-</body>
+    <div class="col-sm-12 text-center mt-4">
+        <h2>Dane statystyczne naszych użytkowników</h2>
+        <p>W tej sekcji udostępniamy dane statystyczne 1000 użytkowników wygenerowanych z <a
+                href="https://randomuser.me">API randomuser.me</a></p>
+    </div>
+    <div class="container charts-container">
+        <div class="row">
+            <div class="col-sm-6 text-center">
+                <h3>Wiek użytkowników</h3>
+                <div class="spinner2 spinner-border" style="width: 3rem;height: 3rem;" role="status">
+                    <span class="sr-only">Ładowanie...</span>
+                </div>
+                <div id="chart_ages"></div>
 
+            </div>
+            <div class="col-sm-6 text-center">
+                <h3>Płeć użytkowników</h3>
+                <div class="spinner2 spinner-border" style="width: 3rem;height: 3rem;" role="status">
+                    <span class="sr-only">Ładowanie...</span>
+                </div>
+                <div id="chart_genders"></div>
+            </div>
+        </div>
+    </div>
+    <div class="container charts-container">
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3>Ilość użytkowników z danego kraju</h3>
+                <div class="spinner2 spinner-border" style="width: 3rem;height: 3rem;" role="status">
+                    <span class="sr-only">Ładowanie...</span>
+                </div>
+                <div id="chart_nats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('.spinner').show();
+        $(".spinner2").show();
+        var statictics = {
+            'nationalities': {
+                'AU': 0,
+                'BR': 0,
+                'CA': 0,
+                'CH': 0,
+                'DE': 0,
+                'DK': 0,
+                'ES': 0,
+                'FI': 0,
+                'FR': 0,
+                'GB': 0,
+                'IE': 0,
+                'IR': 0,
+                'NO': 0,
+                'NL': 0,
+                'NZ': 0,
+                'TR': 0,
+                'US': 0
+            },
+            'ages': {
+                '0-10': 0,
+                '11-20': 0,
+                '21-30': 0,
+                '31-40': 0,
+                '41-50': 0,
+                '51-60': 0,
+                '61-70': 0,
+                '71-80': 0,
+                '81-90': 0,
+                '91-100': 0,
+                '100+': 0
+            },
+            'genders': {
+                'm': 0,
+                'f': 0
+            }
+        }
+        $(document).ready(function () {
+            generate_users(statictics);
+            generate_charts_users(statictics);
+        });
+
+    </script>
+
+</body>
 <footer class="page-footer">
     <div class="container-fluid text-center text-md-left">
         <div class="row">
