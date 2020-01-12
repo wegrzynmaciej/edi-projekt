@@ -58,10 +58,10 @@ function get_nbp_data_month(m, currencies) {
 };
 
 function generate_chart_NBP(currency_data) {
-    var months = currency_data['months']
-    var cols_bid = new Array();
+    let months = currency_data['months']
+    let cols_bid = new Array();
     cols_bid.push('Kupno');
-    var cols_ask = new Array();
+    let cols_ask = new Array();
     cols_ask.push('Sprzedaż')
     for (let x = 1; x <= 12; x++) {
         var bid = months[x]['bid'];
@@ -69,6 +69,7 @@ function generate_chart_NBP(currency_data) {
         cols_bid.push(bid);
         cols_ask.push(ask);
     }
+
     bb.generate({
         bindto: "#chart",
         data: {
@@ -88,6 +89,126 @@ function generate_chart_NBP(currency_data) {
                     position: "inner-center"
                 }
             }
+        }
+    });
+}
+
+function generate_users(dict) {
+    $.ajax({
+        url: 'https://randomuser.me/api/?results=1000&inc=dob,gender,nat',
+        dataType: 'json',
+        async: false,
+        success: function (data) {
+
+            let result = data['results'];
+            result.forEach(person => {
+                if (person['gender'] == 'female') {
+                    dict['genders']['f'] += 1;
+                } else {
+                    dict['genders']['m'] += 1;
+                }
+                let nat_symbol = person['nat'];
+                dict['nationalities'][nat_symbol] += 1
+                let person_age = person['dob']['age']
+                switch (true) {
+                    case (person_age < 11):
+                        dict['ages']['0-10'] += 1
+                        break;
+
+                    case (person_age < 21):
+                        dict['ages']['11-20'] += 1
+                        break;
+
+                    case (person_age < 31):
+                        dict['ages']['21-30'] += 1
+                        break;
+
+                    case (person_age < 41):
+                        dict['ages']['31-40'] += 1
+                        break;
+
+                    case (person_age < 51):
+                        dict['ages']['41-50'] += 1
+                        break;
+
+                    case (person_age < 61):
+                        dict['ages']['51-60'] += 1
+                        break;
+
+                    case (person_age < 71):
+                        dict['ages']['61-70'] += 1
+                        break;
+
+                    case (person_age < 81):
+                        dict['ages']['71-80'] += 1
+                        break;
+
+                    case (person_age < 91):
+                        dict['ages']['81-90'] += 1
+                        break;
+
+                    case (person_age <= 100):
+                        dict['ages']['91-100'] += 1
+                        break;
+
+                    case (person_age > 100):
+                        dict['ages']['100+'] += 1
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+            $('#spinner2').hide();
+
+        }
+    });
+}
+
+
+function generate_charts_users(users_dict) {
+
+    bb.generate({
+        bindto: "#chart_genders",
+        data: {
+            type: "pie",
+            columns: [
+                ['Mężczyzna', users_dict['genders']['m']],
+                ['Kobieta', users_dict['genders']['f']]
+            ]
+        }
+    });
+
+    let columns_data = new Array();
+    let nat_keys = users_dict['nationalities'];
+    for (var key in nat_keys) {
+        let nat_values = new Array();
+        nat_values.push(key);
+        nat_values.push(nat_keys[key])
+        columns_data.push(nat_values)
+    };
+
+    bb.generate({
+        bindto: "#chart_nat",
+        data: {
+            type: "pie",
+            columns: columns_data
+        }
+    });
+
+    let columns_data_ages = new Array();
+    let age_keys = users_dict['ages'];
+    for (var key in age_keys) {
+        let age_values = new Array();
+        age_values.push(key);
+        age_values.push(age_keys[key])
+        columns_data_ages.push(age_values)
+    };
+    bb.generate({
+        bindto: "#chart_ages",
+        data: {
+            type: "pie",
+            columns: columns_data_ages
         }
     });
 }

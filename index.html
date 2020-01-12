@@ -27,24 +27,33 @@
 
     <br><br><br><br>
     <button id='AUD' onclick="generate_chart_NBP(currencies[this.id])">AUD</button>
-    <button>CAD</button>
-    <button>CHF</button>
-    <button>CZK</button>
-    <button>DKK</button>
-    <button>EUR</button>
-    <button>GBP</button>
-    <button>HUF</button>
-    <button>JPY</button>
-    <button>NOK</button>
-    <button>SEK</button>
-    <button>USD</button>
-    <button>XDR</button>
+    <button id='CAD' onclick="generate_chart_NBP(currencies[this.id])">CAD</button>
+    <button id='CHF' onclick="generate_chart_NBP(currencies[this.id])">CHF</button>
+    <button id='CZK' onclick="generate_chart_NBP(currencies[this.id])">CZK</button>
+    <button id='DKK' onclick="generate_chart_NBP(currencies[this.id])">DKK</button>
+    <button id='EUR' onclick="generate_chart_NBP(currencies[this.id])">EUR</button>
+    <button id='GBP' onclick="generate_chart_NBP(currencies[this.id])">GBP</button>
+    <button id='HUF' onclick="generate_chart_NBP(currencies[this.id])">HUF</button>
+    <button id='JPY' onclick="generate_chart_NBP(currencies[this.id])">JPY</button>
+    <button id='NOK' onclick="generate_chart_NBP(currencies[this.id])">NOK</button>
+    <button id='SEK' onclick="generate_chart_NBP(currencies[this.id])">SEK</button>
+    <button id='USD' onclick="generate_chart_NBP(currencies[this.id])">USD</button>
+    <button id='XDR' onclick="generate_chart_NBP(currencies[this.id])">XDR</button>
     <br><br><br><br>
     <div class="text-center">
         <div id="spinner" class="spinner-border" style="width: 3rem;height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
         <div id="chart"></div>
+    </div>
+    <br><br><br>
+    <div class="text-center">
+        <div id="spinner2" class="spinner-border" style="width: 3rem;height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div id="chart_ages"></div>
+        <div id="chart_nats"></div>
+        <div id="chart_genders"></div>
     </div>
 
 
@@ -85,7 +94,51 @@
                     for (let x = 1; x <= 12; x++) {
                         get_nbp_data_month(x, currencies);
                     }
+                    // generate_chart_NBP(currencies['AUD'])
                     $('#spinner').hide();
+
+                    $("#spinner2").show();
+                    var statictics = {
+                        'nationalities': {
+                            'AU': 0,
+                            'BR': 0,
+                            'CA': 0,
+                            'CH': 0,
+                            'DE': 0,
+                            'DK': 0,
+                            'ES': 0,
+                            'FI': 0,
+                            'FR': 0,
+                            'GB': 0,
+                            'IE': 0,
+                            'IR': 0,
+                            'NO': 0,
+                            'NL': 0,
+                            'NZ': 0,
+                            'TR': 0,
+                            'US': 0
+                        },
+                        'ages': {
+                            '0-10': 0,
+                            '11-20': 0,
+                            '21-30': 0,
+                            '31-40': 0,
+                            '41-50': 0,
+                            '51-60': 0,
+                            '61-70': 0,
+                            '71-80': 0,
+                            '81-90': 0,
+                            '91-100': 0,
+                            '100+': 0
+                        },
+                        'genders': {
+                            'm': 0,
+                            'f': 0
+                        }
+                    }
+                    generate_users(statictics);
+                    generate_charts_users(statictics);
+                    console.log(statictics);
                 }
             });
         });
